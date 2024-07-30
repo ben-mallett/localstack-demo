@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=dynamodb,s3
+      - GATEWAY_LISTEN=0.0.0.0:4566
+  app:
+    build: .
+    command: bash -c "python app/init.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - LOCALSTACK_URL=http://localstack:4566
+    depends_on:
+      - localstack
